@@ -33,7 +33,6 @@ exports.addUserToDb = async (req, res, next) => {
         const phone = req.body.phone;
         const email = req.body.email;
         const password = req.body.password;
-
         bcrypt.hash(password, 10, async(err,hash) => {
             console.log(err);
             const userdata = await User.create({name:name, email:email,phone:phone, password:hash});

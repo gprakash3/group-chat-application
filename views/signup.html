@@ -44,9 +44,9 @@
         const phone=document.getElementById('phone').value;
         const password=document.getElementById('pswd').value;
         const obj={name:name,email:email,phone:phone,password:password};
-        console.log('object value in obj', obj)
+        // console.log('object value in obj', obj)
         const res= await axios.post('http://localhost:5000/checkExistingUser', obj);
-        console.log(res.data);
+        // console.log(res.data);
         if(res.data.user){
             alert('user already exist');
         }

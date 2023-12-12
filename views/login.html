@@ -1,17 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 </head>
+<style>
+    #display{
+        color: red;
+    }
+</style>
+
 <body>
     <h1 style="text-align: center;">Login Page</h1>
-    <div class="display"></div>
-    <div class="forms">
+    <div id="display"></div>
+    <br>
+    <div id="forms">
         <form>
             Email: <input type="email" name="email" id="email" placeholder="Enter Email Id" required><br>
-            Password: <input type="password" name="password" id="password" placeholder="Enter your Password" required><br>
+            Password: <input type="password" name="password" id="password" placeholder="Enter your Password"
+                required><br>
             <input type="submit" id="sbmtbtn" value="LOGIN">
 
         </form>
@@ -23,22 +32,24 @@
         </div>
     </div>
 </body>
-<script  src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 <script>
-    const display=document.getElementById('display');
-    const submitbtn=document.getElementById('sbmtbtn');
-    submitbtn.addEventListener('click', async(e)=>{
-        try{
-        e.preventDefault();
-        const email = document.getElementById('email').value;
+    const display = document.getElementById('display');
+    const submitbtn = document.getElementById('sbmtbtn');
+    submitbtn.addEventListener('click', async (e) => {
+        try {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             let res = await axios.post(`http://localhost:5000/login/passwordValidation`, { email: email, password: password });
             display.innerHTML = 'User Successfully logged in';
+            localStorage.setItem('token', res.data.token);
         }
-        catch(err){
+        catch (err) {
             console.log(err);
-            display.innerHTML='Enter correct password'
+            display.innerHTML = `${err.response.data.msg}`;
         }
     })
 </script>
+
 </html>

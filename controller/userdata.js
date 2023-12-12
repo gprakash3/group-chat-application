@@ -6,9 +6,14 @@ const path = require('path');
 const rootDir = require('../util/path');
 require('dotenv').config()
 const bcrypt = require('bcrypt');
+const { where } = require('sequelize');
 
 exports.getSignupPage = (req,res,next) => {
     res.sendFile(path.join(rootDir, 'views', 'signup.html'));
+}
+
+exports.getLoginPage = (req,res,next) =>{
+    res.sendFile(path.join(rootDir, 'views' , 'login.html'));
 }
 
 //checking if user already exist in database
@@ -43,5 +48,32 @@ exports.addUserToDb = async (req, res, next) => {
         console.log(err);
         res.status(500).json({error:err});
     }
+}
 
+exports.checkLoginPassword = async(req,res,next) => {
+    try{
+        const email=req.body.email;
+        const password=req.body.password;
+        const userDatas=await User.findAll({where: {email:email}});
+        const userData=userDatas[0];
+        if(!userData){
+            res.status(404).json({msg:'user not found'});
+        }
+        else{
+            bcrypt.compare(password, userData.password, (error,response) =>{
+                if(response===true){
+                    const x=jwt.sign({userId:userData.id, name:userData.name}, 'secretKey');
+                    res.json({token:x});
+                }
+                else{
+                    res.status(401).json({msg:'User not authorized'});
+                }
+            })
+        }
+
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({error:err})
+    }
 }

@@ -1,54 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>chat homepage</title>
     <style>
-        .container{
+        .container {
             display: inline-flex;
             border-color: 1px solid black;
             width: 100%;
-            
+
         }
-       
-        #messageDisplay{
+
+        #messageDisplay {
             width: 75%;
             border: 1px solid aqua;
             height: 15rem;
             margin: 1rem auto;
         }
-        #navbar{
+
+        #navbar {
             width: 95%;
             border: 1px solid aquamarine;
-            height:fit-content;
+            height: fit-content;
             text-align: center;
             margin: auto;
         }
-        #sendmsg{
+
+        #sendmsg {
             width: 90%;
         }
-        #bottomcontainer{
+
+        #bottomcontainer {
             width: 95%;
             margin-bottom: 0.5rem;
             position: absolute;
             bottom: 1rem;
             background-color: aquamarine;
         }
-        #sendmsg{
+
+        #sendmsg {
             margin: 0.5rem auto;
-            width:fit-content;
+            width: fit-content;
         }
     </style>
 </head>
+
 <body>
-    <div id="navbar"> 
+    <div id="navbar">
         <h1>CHAT APP</h1>
     </div>
     <div id="errordisplay"></div>
 
     <div id="messageDisplay">
-       
+
     </div>
 
     <div id="bottomcontainer">
@@ -60,52 +66,83 @@
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 <script>
-   
-    const display= document.getElementById('messageDisplay');
-    const errordisplay= document.getElementById('errordisplay');
-    const submitbtn=document.getElementById('sendbtn');
-    
-    submitbtn.addEventListener('click', async(e)=>{
-        try{
-        e.preventDefault();
-        const token = localStorage.getItem('token');
-        const msg1=document.getElementById('messages').value;
-        const res= await axios.post('http://localhost:5000/sendMessage', {msg:msg1}, { headers: { "Authorization": token } });
-        console.log(res.data);
-        }
-        catch(err){
-            console.log(err);
-            errordisplay.innerHTML=`something went wrong - ${err}`;
-        }
-    });
 
-    // setTimeInterval
-    setInterval(updatechat, 1000);
-    window.addEventListener('DOMContentLoaded', async(e) => {
-        try{
+    var indexOfMsgSaved=0;
+    const display = document.getElementById('messageDisplay');
+    const errordisplay = document.getElementById('errordisplay');
+    const submitbtn = document.getElementById('sendbtn');
+
+    submitbtn.addEventListener('click', async (e) => {
+        try {
             e.preventDefault();
-            updatechat();
+            const token = localStorage.getItem('token');
+            const msg1 = document.getElementById('messages').value;
+            const res = await axios.post('http://localhost:5000/sendMessage', { msg: msg1 }, { headers: { "Authorization": token } });
+            console.log(res.data);
         }
-        catch(err){
+        catch (err) {
             console.log(err);
-            errordisplay.innerHTML=`something went wrong - ${err}`;
+            errordisplay.innerHTML = `something went wrong - ${err}`;
         }
     });
 
-    async function updatechat(){
-        try{
-            const res = await axios.get('http://localhost:5000/getAllMessage');
-            // console.log(res);
-            display.innerHTML='';
-            for(let i=0;i<res.data.message.length;i++){
-                display.innerHTML+= res.data.message[i].name+ ':' + res.data.message[i].dataValues.message+`<br>`;
+    // calling API repeatedly
+    setInterval(savemessagetoLS, 1500);
+
+    //function when page is refreshed
+    window.addEventListener('DOMContentLoaded', async (e) => {
+        savemessagetoLS();
+    });
+
+    async function savemessagetoLS() {
+        try {
+            messages = [];
+            //To find latest message, calculating ID from where we should read messages.
+            var startingFilterIndex=(indexOfMsgSaved - 15) > 0 ? indexOfMsgSaved - 15 : 0;
+            const res = await axios.get(`http://localhost:5000/getAllMessage?start=${startingFilterIndex}`);
+            //storing highest ID that we received.
+            indexOfMsgSaved=res.data.message[res.data.message.length-1].dataValues.id;
+            display.innerHTML = '';
+
+            //getting last 15 latest message starting index
+            const startingidx = (res.data.message.length - 15) > 0 ? res.data.message.length - 15 : 0;
+            //push 15 latest message to array messages
+            for (let i = startingidx; i < res.data.message.length; i++) {
+                messages.push(res.data.message[i].name + ':' + res.data.message[i].dataValues.message);
+            }
+            //stringify array
+            let string = JSON.stringify(messages);
+            //storing latest 15 message in form of array in local storage
+            localStorage.setItem("messages", string);
+
+            //reading message from localstorage and display on screen
+            updatechatonscreen();
+        }
+        catch (err) {
+            console.log(err);
+            errordisplay.innerHTML = `something went wrong - ${err}`;
+        }
+    }
+
+    async function updatechatonscreen() {
+        try {
+            // Retrieving the string
+            let retString = localStorage.getItem("messages")
+            // Retrieved array
+            let retArray = JSON.parse(retString)
+            //cleaning the screen so that message donot repeat
+            display.innerHTML = '';
+            //displaying message on screen which is read from localstorage
+            for (let i = 0; i < retArray.length; i++) {
+                display.innerHTML += retArray[i] + `<br>`;
             }
         }
-        catch(err){
+        catch (err) {
             console.log(err);
-            errordisplay.innerHTML=`something went wrong - ${err}`;
+            errordisplay.innerHTML = `something went wrong - ${err}`;
         }
     }
 
 </script>
+
 </html>

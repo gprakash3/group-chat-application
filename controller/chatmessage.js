@@ -1,3 +1,4 @@
+const Op = require('sequelize').Op;
 const Message= require('../model/message');
 const User= require('../model/user');
 
@@ -18,8 +19,19 @@ exports.saveMsgToDB = async(req,res,next) => {
 
 exports.getAllMessage = async(req,res,next) => {
     try{
-        const messages=await Message.findAll();
-        console.log(messages);
+        //getting calculated id that is received using query params
+        const filter=req.query.start;
+
+        //finding message whose id is greater than filter.
+        const messages=await Message.findAll({
+            where: {
+              id: {
+                [Op.gte]: filter
+              }
+            }
+          });
+        
+          //attaching name of sender of message
         for(let i=0;i<messages.length;i++){
         //finding name of sender
         const user= await User.findAll({where:{id:messages[i].userId}});

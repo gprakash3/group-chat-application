@@ -79,11 +79,24 @@
         }
     });
 
+    // setTimeInterval
+    setInterval(updatechat, 1000);
     window.addEventListener('DOMContentLoaded', async(e) => {
         try{
             e.preventDefault();
+            updatechat();
+        }
+        catch(err){
+            console.log(err);
+            errordisplay.innerHTML=`something went wrong - ${err}`;
+        }
+    });
+
+    async function updatechat(){
+        try{
             const res = await axios.get('http://localhost:5000/getAllMessage');
-            console.log(res);
+            // console.log(res);
+            display.innerHTML='';
             for(let i=0;i<res.data.message.length;i++){
                 display.innerHTML+= res.data.message[i].name+ ':' + res.data.message[i].dataValues.message+`<br>`;
             }
@@ -92,6 +105,7 @@
             console.log(err);
             errordisplay.innerHTML=`something went wrong - ${err}`;
         }
-    })
+    }
+
 </script>
 </html>

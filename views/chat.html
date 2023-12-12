@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>chat homepage</title>
+    <style>
+        .container{
+            display: inline-flex;
+            border-color: 1px solid black;
+            width: 100%;
+            
+        }
+       
+        #messageDisplay{
+            width: 75%;
+            border: 1px solid aqua;
+            height: 15rem;
+            margin: 1rem auto;
+        }
+        #navbar{
+            width: 95%;
+            border: 1px solid aquamarine;
+            height:fit-content;
+            text-align: center;
+            margin: auto;
+        }
+        #sendmsg{
+            width: 90%;
+        }
+        #bottomcontainer{
+            width: 95%;
+            margin-bottom: 0.5rem;
+            position: absolute;
+            bottom: 1rem;
+            background-color: aquamarine;
+        }
+        #sendmsg{
+            margin: 0.5rem auto;
+            width:fit-content;
+        }
+    </style>
+</head>
+<body>
+    <div id="navbar"> 
+        <h1>CHAT APP</h1>
+    </div>
+    <div id="messageDisplay">
+       
+    </div>
+
+    <div id="bottomcontainer">
+        <div id="sendmsg">
+            <input type="text" name="msg" id="msg" style="width: 25rem; height: 2rem;">
+            <input type="submit" name="send" value="SEND" style="width: 3rem; height: 2rem;">
+        </div>
+    </div>
+</body>
+</html>

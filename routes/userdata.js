@@ -6,6 +6,7 @@ const router= express.Router();
 
 router.get('/signup', userController.getSignupPage);
 router.get('/login', userController.getLoginPage);
+router.get('/chatpage', userController.getChatPage);
 
 router.post('/addUserToDB', userController.addUserToDb);
 router.post('/checkExistingUser', userController.checkExistingUser);

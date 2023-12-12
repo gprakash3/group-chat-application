@@ -51,9 +51,30 @@
 
     <div id="bottomcontainer">
         <div id="sendmsg">
-            <input type="text" name="msg" id="msg" style="width: 25rem; height: 2rem;">
-            <input type="submit" name="send" value="SEND" style="width: 3rem; height: 2rem;">
+            <input type="text" name="msg" id="messages" style="width: 25rem; height: 2rem;">
+            <input type="submit" name="send" value="SEND" id="sendbtn" style="width: 3rem; height: 2rem;">
         </div>
     </div>
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+<script>
+    //just to get any error, need to delete before upload
+    const display= document.getElementById('messageDisplay');
+
+    const submitbtn=document.getElementById('sendbtn');
+    
+    submitbtn.addEventListener('click', async(e)=>{
+        try{
+        e.preventDefault();
+        const token = localStorage.getItem('token');
+        const msg1=document.getElementById('messages').value;
+        const res= await axios.post('http://localhost:5000/sendMessage', {msg:msg1}, { headers: { "Authorization": token } });
+        console.log(res.data);
+        }
+        catch(err){
+            console.log(err);
+            display.innerHTML=`something went wrong - ${err}`;
+        }
+    })
+</script>
 </html>

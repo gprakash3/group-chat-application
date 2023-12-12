@@ -16,6 +16,10 @@ exports.getLoginPage = (req,res,next) =>{
     res.sendFile(path.join(rootDir, 'views' , 'login.html'));
 }
 
+exports.getChatPage = (req,res,next) => {
+    res.sendFile(path.join(rootDir, 'views', 'chat.html'));
+}
+
 //checking if user already exist in database
 exports.checkExistingUser = async (req, res, next) => {
     try {

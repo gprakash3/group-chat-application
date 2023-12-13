@@ -81,3 +81,14 @@ exports.checkLoginPassword = async(req,res,next) => {
         res.status(500).json({error:err})
     }
 }
+
+//get current user logged in system
+exports.getCurrentUser = async(req,res,next) => {
+    try{
+        const name= req.user.name;
+        res.status(201).json({currentuser:name, msg:"current user found"});
+    }
+    catch(err){
+        res.status(500).json({error:err, msg:"unable to find current user"})
+    }
+}

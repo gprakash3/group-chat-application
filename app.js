@@ -7,6 +7,8 @@ const path = require('path');
 
 const User=require('./model/user');
 const Message=require('./model/message');
+const Group=require('./model/group');
+const UserGroup=require('./model/usergroup');
 
 const cors = require('cors');
 app.use(cors({origin:"*",
@@ -25,6 +27,12 @@ app.use(chatRoute);
 
 User.hasMany(Message);
 Message.belongsTo(User);
+
+Group.hasMany(Message);
+Message.belongsTo(Group);
+
+Group.belongsToMany(User, { through: UserGroup });
+User.belongsToMany(Group, { through: UserGroup });
 
 sequelize.sync()
     // sequelize.sync({alter:true})

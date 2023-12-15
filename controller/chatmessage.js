@@ -1,6 +1,7 @@
 const Op = require('sequelize').Op;
 const Message= require('../model/message');
 const User= require('../model/user');
+const CommonMessage= require('../model/commongroupmessage');
 
 exports.saveMsgToDB = async(req,res,next) => {
     try{
@@ -8,10 +9,16 @@ exports.saveMsgToDB = async(req,res,next) => {
         const id=req.user.id;
         const name=req.user.name;
         const groupId= 0 | req.body.groupid;
-        console.log(msg);
-        const resp= await Message.create({message:msg, userId:id, groupId:groupId});
+        if(groupId==0){
+            const resp= await CommonMessage.create({message:msg, userId:id});
+            console.log(msg);
         res.status(201).json({message:'msg saved to db', userdata:resp, currentuser:name});
-
+        }else{
+            const resp= await Message.create({message:msg, userId:id, groupId:groupId});
+            console.log(msg);
+        res.status(201).json({message:'msg saved to db', userdata:resp, currentuser:name});
+        } 
+        
     }
     catch(err){
         console.log(err);
@@ -25,7 +32,7 @@ exports.getCommonGroupMessage = async(req,res,next) => {
         const filter=req.query.start;
 
         //finding message whose id is greater than filter.
-        const messages=await Message.findAll({
+        const messages=await CommonMessage.findAll({
             where: {
               id: {
                 [Op.gte]: filter

@@ -24,12 +24,26 @@
             margin: 1rem auto;
         }
 
-        #messageDisplay {
+        #chatarea {
             width: 100%;
             border: 1px solid aqua;
-            height: 27rem;
+            height: 25rem;
             margin: 0rem auto;
-            overflow: scroll;
+            display: inline-flex;
+        }
+        #messagearea{
+            width: 100%;
+            border: 1px solid aqua;
+            height: 25rem;
+            margin: 1rem auto;
+            /* overflow: scroll; */
+            overflow-y: scroll;
+            padding: 0.1rem 0.1rem;
+        }
+        #managegroup{
+            width: 30%;
+            border: 1px solid aqua;
+            height: 25rem;
         }
 
         #msgnavbar {
@@ -41,18 +55,19 @@
         }
 
         #tiles {
-            width: 25%;
+            width: fit-content;
             border: 1px solid aqua;
             height: 27rem;
             margin: 1rem auto;
         }
 
         #navbar {
-            width: 95%;
+            width: 98%;
             border: 1px solid aquamarine;
             height: fit-content;
-            text-align: center;
+            /* text-align: center; */
             margin: auto;
+            display: inline-flex;
         }
 
         #sendmsg {
@@ -91,17 +106,33 @@
             border-radius: 5px;
         }
 
+        .groupnametile {
+            width: initial;
+            text-wrap: wrap;
+        }
+        #messageDisplay{
+            width: 70%;
+    padding-left: 0.5rem;
+        }
+        
     </style>
 </head>
 
 <body>
     <div id="navbar">
-        <h3>CHAT APP</h3>
+        <div id="appname" style="margin: auto 2rem;">
+            <h3>GROUPCHAT</h3>
+        </div>
+
+        <div id="currentuser" style="position: absolute;; right: 2rem; margin: 1rem 1rem;">
+
+        </div>
     </div>
     <div id="errordisplay"></div>
     <div id="textarea">
         <div id="tiles">
-            <button type="submit" id="createnewgroup" style="margin:0.5rem 2rem;">create new group</button>
+            <button type="submit" id="createnewgroup" style="margin: 0.5rem 1rem;
+            padding: 0.2rem 0.1rem;">create new group</button>
             <div class="hide" id="entergroupname">
                 Enter Group name:
                 <input type="text" name="groupname" id="groupname">
@@ -110,19 +141,58 @@
             <div class="hide" id="showAllUser">
 
             </div>
+            <hr>
+            <p style="    font-family: 'Courier New', Courier, monospace;
+            color: black;
+            text-align: center;
+            background-color: aquamarine;
+            border-radius: 50px;
+            height: max-content;
+            border: 3px solid;">Group</p>
+
             <div id="groupnames">
 
             </div>
-
+           
         </div>
         <div id="messagearea">
             <div id="msgnavbar">
-                <div id="GroupNamenav" style="position: relative; left: 1rem;"></div>
-                <div id="createdBynav" style="position: absolute; right: 3rem;"></div>
+                <div id="GroupNamenav" style="position: relative; min-width: fit-content;
+                margin: 0.5rem;"></div>
+                <div id="createdBynav" style="position: absolute; right: 1.5rem; min-width:fit-content; margin: 0.5rem;"></div>
             </div>
-            <div id="messageDisplay">
+            <div id="chatarea">
+                <div id="messageDisplay">
+                
+                </div>
+                <div id="managegroup">
+                    <div id="isUserAdmin" style="color: darkslategrey; font-style: italic; font-family: cursive; background-color: lightpink;"></div>
+                    search user to add in group
+                    <input type="text" id="searchuser" style="width: -webkit-fill-available;">
+                   
+                    <select id="searchuserfilter">
+                        <option value="name" id="username">name</option>
+                        <option value="email" id="useremail">Email</option>
+                        <option value="phone" id="phone">Phone</option>
+                    </select>
+                    <button type="submit" id="addusertogroupbtn">Find user</button>
 
+                    <div id="displayusertoaddingroup"></div>
+                    <hr>
+                    <div id="adduserasAdmin">
+                        <button type="button"  id="searchuserbtn" style="background-color: rgb(96, 160, 160);">make User Group Admin</button>
+                        <div id="displayusertomakeadmin"></div>
+                    </div>
+                    <hr>
+                    <div id="removeuserfromgroup">
+                        <button type="button" id="removeuserfromgroupbtn">Remove user</button>
+                        <div id="displayUserToBeremovedfromGroup">
+
+                        </div>
+                    </div>
+                </div>
             </div>
+           
         </div>
 
     </div>
@@ -136,273 +206,6 @@
     </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
-<script>
-    let currentuser;
-    const token = localStorage.getItem('token');
-    var indexOfMsgSaved = 0;
-    const display = document.getElementById('messageDisplay');
-    const errordisplay = document.getElementById('errordisplay');
-    const submitbtn = document.getElementById('sendbtn');
-
-    submitbtn.addEventListener('click', async (e) => {
-        try {
-            e.preventDefault();
-            const msg1 = document.getElementById('messages').value;
-            currentgroupId = localStorage.getItem('currentGroupId') | 0;
-            const res = await axios.post('http://localhost:5000/sendMessage', { msg: msg1, groupid: currentgroupId }, { headers: { "Authorization": token } });
-            console.log(res.data);
-        }
-        catch (err) {
-            console.log(err);
-            errordisplay.innerHTML = `something went wrong - ${err}`;
-        }
-    });
-
-    // calling API repeatedly
-    setInterval(makechatrealtime, 500);
-    setInterval(updategrouptile, 10999);
-
-    async function updategrouptile() {
-        const groupnames = document.getElementById('groupnames');
-        groupnames.innerHTML = '';
-        await displayAllGroup();
-    }
-
-    //function to make chat realtime
-    async function makechatrealtime() {
-        try {
-            currentId = localStorage.getItem('currentGroupId') | 0;
-            const res = await axios.get('http://localhost:5000/getCurrentUser', { headers: { "Authorization": token } })
-            console.log(res.data.currentuser);
-            currentuser = res.data.currentuser;
-            if (currentId === 0) {
-                savemessagetoLS();
-            }
-            else {
-                const resp = await axios.post('http://localhost:5000/getParticularGroupMessage', { groupId: currentId });
-                //cleaning the screen so that message donot repeat
-                display.innerHTML = '';
-                //displaying message on screen received from database
-                for (let i = 0; i < resp.data.message.length; i++) {
-                    display.innerHTML += resp.data.message[i].name + ':' + resp.data.message[i].dataValues.message + `<br>`;
-                }
-            }
-            if (currentId == 0 || currentId == undefined || currentId == null) {
-                // document.getElementById("0").style.backgroundColor = "aqua";
-            }
-            else {
-                document.getElementById(`${currentId}`).style.backgroundColor = "aqua";
-            }
-        }
-        catch (err) {
-            console.log(err);
-            errordisplay.innerHTML = `something went wrong - ${err}`;
-        }
-    }
-
-
-
-    //function when page is refreshed
-    window.addEventListener('DOMContentLoaded', async (e) => {
-        await displayAllGroup();
-        currentId = localStorage.getItem('currentGroupId') | 0;
-        const res = await axios.get('http://localhost:5000/getCurrentUser', { headers: { "Authorization": token } })
-        console.log(res.data.currentuser);
-        currentuser = res.data.currentuser;
-        if (currentId === 0) {
-            savemessagetoLS();
-        }
-        else {
-            await getParticularGroupMessage();
-        }
-
-        if (currentId === 0 || currentId == undefined || currentId == null) {
-            document.getElementById('0').style.backgroundColor = "aqua";
-        }
-        else {
-            document.getElementById(`${currentId}`).style.backgroundColor = "aqua";
-        }
-
-    });
-
-    async function getParticularGroupMessage() {
-        try {
-            currentId = localStorage.getItem('currentGroupId') | 0;
-            const resp = await axios.post('http://localhost:5000/getParticularGroupMessage', { groupId: currentId });
-            //cleaning the screen so that message donot repeat
-            display.innerHTML = '';
-            //displaying message on screen received from database
-            for (let i = 0; i < resp.data.message.length; i++) {
-                display.innerHTML += resp.data.message[i].name + ':' + resp.data.message[i].dataValues.message + `<br>`;
-            }
-        }
-        catch (err) {
-            errordisplay.innerHTML = `something went wrong - ${err}`;
-        }
-
-    }
-
-    async function savemessagetoLS() {
-        try {
-            messages = [];
-            //To find latest message, calculating ID from where we should read messages.
-            var startingFilterIndex = (indexOfMsgSaved - 15) > 0 ? indexOfMsgSaved - 15 : 0;
-            const res = await axios.get(`http://localhost:5000/getCommonGroupMessage?start=${startingFilterIndex}`);
-            //storing highest ID that we received.
-            indexOfMsgSaved = res.data.message[res.data.message.length - 1].dataValues.id;
-            display.innerHTML = '';
-
-            //getting last 15 latest message starting index
-            const startingidx = (res.data.message.length - 15) > 0 ? res.data.message.length - 15 : 0;
-            //push 15 latest message to array messages
-            for (let i = startingidx; i < res.data.message.length; i++) {
-                messages.push(res.data.message[i].name + ':' + res.data.message[i].dataValues.message);
-            }
-            //stringify array
-            let string = JSON.stringify(messages);
-            //storing latest 15 message in form of array in local storage
-            localStorage.setItem("messages", string);
-
-            //reading message from localstorage and display on screen
-            updatechatonscreen();
-        }
-        catch (err) {
-            console.log(err);
-            errordisplay.innerHTML = `something went wrong - ${err}`;
-        }
-    }
-
-    async function updatechatonscreen() {
-        try {
-            // Retrieving the string
-            let retString = localStorage.getItem("messages")
-            // Retrieved array
-            let retArray = JSON.parse(retString)
-            //cleaning the screen so that message donot repeat
-            display.innerHTML = '';
-            //displaying message on screen which is read from localstorage
-            for (let i = 0; i < retArray.length; i++) {
-                display.innerHTML += retArray[i] + `<br>`;
-            }
-        }
-        catch (err) {
-            console.log(err);
-            errordisplay.innerHTML = `something went wrong - ${err}`;
-        }
-    }
-
-    const createnewgroup = document.getElementById('createnewgroup');
-    createnewgroup.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const entergroupname = document.getElementById('entergroupname');
-        entergroupname.classList.toggle('show');
-        const groupnamesbmtbtn = document.getElementById('groupnamesbmtbtn');
-        groupnamesbmtbtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            entergroupname.style.display = 'none';
-            const groupName = document.getElementById('groupname').value;
-            const resp = await axios.post('http://localhost:5000/createGroup', { groupname: groupName }, { headers: { "Authorization": token } });
-            console.log(resp.data.response.id);
-            const res = await axios.get('http://localhost:5000/getAllUser');
-            console.log(res.data.user);
-            const showAllUser = document.getElementById('showAllUser');
-            showAllUser.classList.toggle('show');
-            showAllUserOnTile(res.data.user, resp.data.response.id);
-        })
-
-    });
-    //show user when clicked on createGroup button.
-    async function showAllUserOnTile(obj, groupID) {
-        const showAllUser = document.getElementById('showAllUser');
-        for (let i = 0; i < obj.length; i++) {
-            if (obj[i].name === currentuser) {
-                continue;
-            }
-            const div = document.createElement('div');
-            const li = document.createElement('li');
-            // li.appendChild(document.createTextNode(obj[i].id));
-            // li.appendChild(document.createTextNode('-'));
-            li.appendChild(document.createTextNode(obj[i].name));
-            var newCheckBox = document.createElement('input');
-            newCheckBox.type = 'checkbox';
-            newCheckBox.name = 'user';
-            newCheckBox.id = `${obj[i].id}`;
-            li.appendChild(newCheckBox);
-            div.appendChild(li);
-
-            showAllUser.appendChild(div);
-
-        }
-        const addUser = document.createElement('button');
-        addUser.innerHTML = 'Add user';
-        showAllUser.appendChild(addUser);
-
-        addUser.addEventListener('click', async (e) => {
-            e.preventDefault();
-            var checkboxes =
-                document.getElementsByName('user');
-            let ids = [];
-            for (var i = 0; i < checkboxes.length; i++) {
-                if (checkboxes[i].checked) {
-                    // console.log(checkboxes[i].value, checkboxes[i].id);
-                    ids.push(checkboxes[i].id);
-                }
-            }
-            const res = await axios.post('http://localhost:5000/addUsersToGroup', { ids: ids, groupid: groupID }, { headers: { "Authorization": token } })
-            location.reload();
-        })
-    }
-
-    //display all group with currentUser as member on left tiles
-    async function displayAllGroup() {
-        try {
-            const res = await axios.get('http://localhost:5000/getAllUserGroup', { headers: { "Authorization": token } });
-            console.log(res.data);
-            obj = { id: 0, groupname: "Common Group", createdby: '' };
-            showGroupNameontile(obj);
-            for (let i = 0; i < res.data.groupdata.length; i++) {
-                showGroupNameontile(res.data.groupdata[i]);
-            }
-
-        }
-        catch (err) {
-            console.log(res);
-            errordisplay.innerHTML = `something went wrong - ${err}`;
-        }
-    }
-
-    async function showGroupNameontile(obj) {
-        const groupnames = document.getElementById('groupnames');
-
-        const div = document.createElement('div');
-        div.id = `${obj.id}`;
-        div.style = "border: 1px solid black";
-        const li = document.createElement('li');
-        li.appendChild(document.createTextNode(obj.groupname));
-        // li.appendChild(document.createTextNode('-'));
-        // li.appendChild(document.createTextNode(obj.createdby));
-        div.appendChild(li);
-        groupnames.appendChild(div);
-
-
-        div.addEventListener('click', async (e) => {
-            e.preventDefault();
-            currentId = div.id | '0';
-            previousId = localStorage.getItem('currentGroupId') | '0';
-            document.getElementById(`${previousId}`).style.backgroundColor = 'white';
-            localStorage.setItem("currentGroupId", currentId);
-            document.getElementById(`${currentId}`).style.backgroundColor = "aqua";
-
-            document.getElementById('GroupNamenav').innerHTML = obj.groupname;
-            if(currentId==0){
-                document.getElementById('createdBynav').innerHTML='';
-            }else{
-            document.getElementById('createdBynav').innerHTML = "created By: "+ obj.createdby;
-            }
-        })
-    }
-
-
-</script>
+<script src="static/chat.js"></script>
 
 </html>

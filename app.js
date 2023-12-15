@@ -9,6 +9,8 @@ const User=require('./model/user');
 const Message=require('./model/message');
 const Group=require('./model/group');
 const UserGroup=require('./model/usergroup');
+const AdminGroup= require('./model/adminofgroup');
+const CommonMessage=require('./model/commongroupmessage');
 
 const cors = require('cors');
 app.use(cors({origin:"*",
@@ -18,6 +20,7 @@ require('dotenv').config()
 
 app.use(bodyParser.json({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use("/static", express.static('./static/'));
 
 const userDataRoute=require('./routes/userdata');
 const chatRoute=require('./routes/chat');
@@ -28,11 +31,19 @@ app.use(chatRoute);
 User.hasMany(Message);
 Message.belongsTo(User);
 
+User.hasMany(CommonMessage);
+CommonMessage.belongsTo(User);
+
 Group.hasMany(Message);
 Message.belongsTo(Group);
 
 Group.belongsToMany(User, { through: UserGroup });
 User.belongsToMany(Group, { through: UserGroup });
+
+User.belongsToMany(Group, {through:AdminGroup});
+Group.belongsToMany(User, {through:AdminGroup});
+
+
 
 sequelize.sync()
     // sequelize.sync({alter:true})

@@ -1,0 +1,38 @@
+.forms {
+    margin: 1rem auto;
+    border: 1px solid black;
+    text-align: center;
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+    border-radius: 10px;
+    background-color: rgb(235, 235, 240);
+  }
+  
+  .forms label,
+  .forms input {
+    text-align: center;
+    display: block;
+    width: 75%;
+    margin-bottom: 0.25rem;
+    margin-left: 5rem;
+  }
+  
+  .forms input,
+  .forms textarea {
+    border: 1px solid #313131;
+    font: inherit;
+    border-radius: 2px;
+  }
+  
+  .forms input:focus,
+  .forms textarea:focus {
+    outline-color: #eeb17f;
+  }
+  .forms button{
+    width:75%;
+    border-radius: 4px;
+  }
+  .forms button:hover{
+    background-color: #9e9999;
+  }
+  

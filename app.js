@@ -27,6 +27,9 @@ const chatRoute=require('./routes/chat');
 
 app.use(userDataRoute);
 app.use(chatRoute);
+app.use((req,res) => {
+    res.sendFile(path.join(__dirname, `public/login.html`));
+})
 
 User.hasMany(Message);
 Message.belongsTo(User);
@@ -49,6 +52,6 @@ sequelize.sync()
     // sequelize.sync({alter:true})
     .then(result => {
         console.log('app started');
-        app.listen(5000);
+        app.listen(3000);
     })
     .catch(err => console.log(err));

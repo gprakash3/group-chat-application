@@ -12,8 +12,9 @@ submitbtn.addEventListener('click', async (e) => {
         e.preventDefault();
         const msg1 = document.getElementById('messages').value;
         currentgroupId = localStorage.getItem('currentGroupId') | 0;
-        const res = await axios.post('http://localhost:5000/sendMessage', { msg: msg1, groupid: currentgroupId }, { headers: { "Authorization": token } });
+        const res = await axios.post(`http://3.109.59.67:3000/sendMessage`, { msg: msg1, groupid: currentgroupId }, { headers: { "Authorization": token } });
         console.log(res.data);
+        document.getElementById('messages').value='';
         await makechatrealtime();
     }
     catch (err) {
@@ -23,7 +24,7 @@ submitbtn.addEventListener('click', async (e) => {
 });
 
 // calling API repeatedly
-setInterval(makechatrealtime, 500);
+setInterval(makechatrealtime, 1000);
 setInterval(updategrouptile, 10999);
 setInterval(checkgroupmembership, 10999);
 
@@ -33,7 +34,7 @@ async function updategrouptile() {
         var flag = false;
         let previousgroups = localStorage.getItem('lastgroupdata');
         let retArray = JSON.parse(previousgroups)
-        const res = await axios.get('http://localhost:5000/getAllUserGroup', { headers: { "Authorization": token } });
+        const res = await axios.get(`http://3.109.59.67:3000/getAllUserGroup`, { headers: { "Authorization": token } });
 
         if (retArray.length !== res.data.groupdata.length) {
             console.log(res.data.groupdata);
@@ -79,7 +80,7 @@ async function updategrouptile() {
 async function checkgroupmembership(){
     try{
         const groupid= localStorage.getItem('currentGroupId');
-        const res= await axios.post('http://localhost:5000/checkgroupmembership', {groupid:groupid},{ headers: { "Authorization": token } } );
+        const res= await axios.post(`http://3.109.59.67:3000/checkgroupmembership`, {groupid:groupid},{ headers: { "Authorization": token } } );
         console.log(res.data);
         if(!res.data.isMember){
             localStorage.setItem('currentGroupId', 0);
@@ -99,12 +100,12 @@ async function makechatrealtime() {
             savemessagetoLS();
         }
         else {
-            const resp = await axios.post('http://localhost:5000/getParticularGroupMessage', { groupId: currentId });
+            const resp = await axios.post(`http://3.109.59.67:3000/getParticularGroupMessage`, { groupId: currentId });
             //cleaning the screen so that message donot repeat
             display.innerHTML = '';
             //displaying message on screen received from database
             for (let i = 0; i < resp.data.message.length; i++) {
-                display.innerHTML += resp.data.message[i].name + ':' + resp.data.message[i].dataValues.message + `<br>`;
+                display.innerHTML += resp.data.message[i].name + ' : ' + resp.data.message[i].dataValues.message + `<br>`;
             }
         }
     }
@@ -121,7 +122,7 @@ window.addEventListener('DOMContentLoaded', async (e) => {
     await checkgroupmembership();
     await displayAllGroup();
     currentId = localStorage.getItem('currentGroupId') | 0;
-    const res = await axios.get('http://localhost:5000/getCurrentUser', { headers: { "Authorization": token } })
+    const res = await axios.get(`http://3.109.59.67:3000/getCurrentUser`, { headers: { "Authorization": token } })
     console.log(res.data.currentuser);
     currentUserId = res.data.currentuserid;
     const currentuser = document.getElementById('currentuser');
@@ -135,6 +136,7 @@ window.addEventListener('DOMContentLoaded', async (e) => {
     await facilitiesforadmin(currentId);
     if (currentId === 0 || currentId == undefined || currentId == null) {
         document.getElementById('0').style.backgroundColor = "aqua";
+        document.getElementById('isUserAdmin').innerHTML='Admin functionality is not applicable in this group';
     }
     else {
         document.getElementById(`${currentId}`).style.backgroundColor = "aqua";
@@ -145,7 +147,7 @@ window.addEventListener('DOMContentLoaded', async (e) => {
 async function getParticularGroupMessage() {
     try {
         currentId = localStorage.getItem('currentGroupId') | 0;
-        const resp = await axios.post('http://localhost:5000/getParticularGroupMessage', { groupId: currentId });
+        const resp = await axios.post(`http://3.109.59.67:3000/getParticularGroupMessage`, { groupId: currentId });
         //cleaning the screen so that message donot repeat
         display.innerHTML = '';
         //displaying message on screen received from database
@@ -164,7 +166,7 @@ async function savemessagetoLS() {
         messages = [];
         //To find latest message, calculating ID from where we should read messages.
         var startingFilterIndex = (indexOfMsgSaved - 15) > 0 ? indexOfMsgSaved - 15 : 0;
-        const res = await axios.get(`http://localhost:5000/getCommonGroupMessage?start=${startingFilterIndex}`);
+        const res = await axios.get(`http://3.109.59.67:3000/getCommonGroupMessage?start=${startingFilterIndex}`);
         //storing highest ID that we received.
         indexOfMsgSaved = res.data.message[res.data.message.length - 1].dataValues.id;
         display.innerHTML = '';
@@ -218,9 +220,9 @@ createnewgroup.addEventListener('click', async (e) => {
         e.preventDefault();
         entergroupname.style.display = 'none';
         const groupName = document.getElementById('groupname').value;
-        const resp = await axios.post('http://localhost:5000/createGroup', { groupname: groupName }, { headers: { "Authorization": token } });
+        const resp = await axios.post(`http://3.109.59.67:3000/createGroup`, { groupname: groupName }, { headers: { "Authorization": token } });
         console.log(resp.data.response.id);
-        const res = await axios.get('http://localhost:5000/getAllUser');
+        const res = await axios.get(`http://3.109.59.67:3000/getAllUser`);
         console.log(res.data.user);
         const showAllUser = document.getElementById('showAllUser');
         showAllUser.classList.toggle('show');
@@ -265,7 +267,7 @@ async function showAllUserOnTile(obj, groupID) {
                 ids.push(checkboxes[i].id);
             }
         }
-        const res = await axios.post('http://localhost:5000/addUsersToGroup', { ids: ids, groupid: groupID }, { headers: { "Authorization": token } })
+        const res = await axios.post(`http://3.109.59.67:3000/addUsersToGroup`, { ids: ids, groupid: groupID }, { headers: { "Authorization": token } })
         location.reload();
     })
 }
@@ -273,7 +275,7 @@ async function showAllUserOnTile(obj, groupID) {
 //display all group with currentUser as member on left tiles
 async function displayAllGroup() {
     try {
-        const res = await axios.get('http://localhost:5000/getAllUserGroup', { headers: { "Authorization": token } });
+        const res = await axios.get(`http://3.109.59.67:3000/getAllUserGroup`, { headers: { "Authorization": token } });
         console.log(res.data.groupdata);
         obj = { id: 0, groupname: "Common Group", createdby: '' };
         showGroupNameontile(obj);
@@ -317,6 +319,7 @@ async function showGroupNameontile(obj) {
             document.getElementById('GroupNamenav').innerHTML = obj.groupname;
             if (currentId == 0) {
                 document.getElementById('createdBynav').innerHTML = '';
+                document.getElementById('isUserAdmin').innerHTML='Admin functionality is not applicable in this group';
             } else {
                 document.getElementById('createdBynav').innerHTML = "created By: " + obj.createdby;
             }
@@ -332,7 +335,7 @@ async function showGroupNameontile(obj) {
 //admin functionalities based on user
 async function facilitiesforadmin(groupid) {
     try {
-        const res = await axios.post('http://localhost:5000/checkUserIsAdmin', { groupid: groupid }, { headers: { "Authorization": token } });
+        const res = await axios.post(`http://3.109.59.67:3000/checkUserIsAdmin`, { groupid: groupid }, { headers: { "Authorization": token } });
 
         if (res.data.isAdmin) {
             document.getElementById("searchuserbtn").disabled = false;
@@ -342,6 +345,7 @@ async function facilitiesforadmin(groupid) {
         }
         else {
             document.getElementById('isUserAdmin').innerHTML = 'You are not admin for this group' + `<hr>`;
+            if(localStorage.getItem('currentGroupId')==0){document.getElementById('isUserAdmin').innerHTML='Admin functionality is not applicable in this group';}
             document.getElementById("searchuserbtn").disabled = true;
             document.getElementById("addusertogroupbtn").disabled = true;
             document.getElementById('removeuserfromgroupbtn').disabled=true;
@@ -361,7 +365,7 @@ addusertogroupbtn.addEventListener('click', async (e) => {
         const data = document.getElementById('searchuser').value;
         const filtername = document.getElementById('searchuserfilter').value;
         const groupId = localStorage.getItem('currentGroupId');
-        const res = await axios.post('http://localhost:5000/getUsertoaddingroupAdmin', { groupid: groupId, filtername: filtername, data: data });
+        const res = await axios.post(`http://3.109.59.67:3000/getUsertoaddingroupAdmin`, { groupid: groupId, filtername: filtername, data: data });
         if (!res.data) {
             alert('user not found');
         }
@@ -399,7 +403,7 @@ async function showUserforAdminonScreen(obj, groupid) {
         btn.addEventListener('click', async (ev) => {
             try {
                 ev.preventDefault();
-                const res = await axios.post('http://localhost:5000/AddusertogroupAdmin', { id: obj.id, groupid: groupid });
+                const res = await axios.post(`http://3.109.59.67:3000/AddusertogroupAdmin`, { id: obj.id, groupid: groupid });
                 console.log(res.data);
                 alert('user successfully added to group');
                 div.removeChild(li);
@@ -426,7 +430,7 @@ searchuserbtn.addEventListener('click', async (e) => {
         e.preventDefault();
         const display = document.getElementById('displayusertomakeadmin');
         const groupid = localStorage.getItem('currentGroupId');
-        const res = await axios.post('http://localhost:5000/getAllUserforAdmin', { groupid: groupid });
+        const res = await axios.post(`http://3.109.59.67:3000/getAllUserforAdmin`, { groupid: groupid });
         display.innerHTML = '';
         if(res.data.userdata.length===0){errordisplay.innerHTML=`No more user to make admin of group - All user are admin`;}
         for (let i = 0; i < res.data.userdata.length; i++) {
@@ -445,7 +449,7 @@ searchuserbtn.addEventListener('click', async (e) => {
             btn.addEventListener('click', async (ev) => {
                 try {
                     ev.preventDefault();
-                    const resp = await axios.post('http://localhost:5000/makeGroupAdmin', { id: res.data.userdata[i].id, groupid: groupid }, { headers: { "Authorization": token } });
+                    const resp = await axios.post(`http://3.109.59.67:3000/makeGroupAdmin`, { id: res.data.userdata[i].id, groupid: groupid }, { headers: { "Authorization": token } });
                     errordisplay.innerHTML = `${res.data.userdata[i].name} made Admin of Group`;
                     div.removeChild(li);
                     console.log(resp.data);
@@ -472,7 +476,7 @@ removeuserfromgroupbtn.addEventListener('click', async (e) => {
         e.preventDefault();
         groupid = localStorage.getItem('currentGroupId');
         const display = document.getElementById('displayUserToBeremovedfromGroup');
-        const res = await axios.post('http://localhost:5000/getAllUserOfGroup', { groupid: groupid }, { headers: { "Authorization": token } });
+        const res = await axios.post(`http://3.109.59.67:3000/getAllUserOfGroup`, { groupid: groupid }, { headers: { "Authorization": token } });
         console.log(res.data);
         for (let i = 0; i < res.data.userdata.length; i++) {
             const div = document.createElement('div');
@@ -488,7 +492,7 @@ removeuserfromgroupbtn.addEventListener('click', async (e) => {
             removebtn.addEventListener('click', async (ev) => {
                 try {
                     ev.preventDefault();
-                    const resp = await axios.post('http://localhost:5000/removeUserFromGroup', { groupid: groupid, userid: res.data.userdata[i].id });
+                    const resp = await axios.post(`http://3.109.59.67:3000/removeUserFromGroup`, { groupid: groupid, userid: res.data.userdata[i].id });
                     alert('user successfully removed from group');
                     console.log(resp.data);
                     div.removeChild(li);

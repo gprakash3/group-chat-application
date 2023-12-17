@@ -26,19 +26,35 @@ exports.saveMsgToDB = async(req,res,next) => {
     }
 }
 
-exports.getCommonGroupMessage = async(req,res,next) => {
+
+
+exports.getGroupMessage = async(req,res,next) =>{
     try{
         //getting calculated id that is received using query params
         const filter=req.query.start;
-
+        const groupid= req.body.groupid;
         //finding message whose id is greater than filter.
-        const messages=await CommonMessage.findAll({
-            where: {
-              id: {
-                [Op.gte]: filter
-              }
-            }
-          });
+        let messages;
+        if(groupid==0){
+             messages=await CommonMessage.findAll({
+                where: {
+                  id: {
+                    [Op.gte]: filter
+                  }
+                }
+              });
+        }
+        else{
+            messages=await Message.findAll({
+                where: {
+                  id: {
+                    [Op.gte]: filter
+                  },
+                  groupId:groupid
+                }
+              });
+        }
+        
         
           //attaching name of sender of message
         for(let i=0;i<messages.length;i++){
@@ -48,31 +64,10 @@ exports.getCommonGroupMessage = async(req,res,next) => {
         let obj={name: user[0].name};
         messages[i]= {...messages[i], ...obj};
         }
-        res.status(201).json({message:messages});
+        res.status(201).json({message:messages, group:groupid});
     }
     catch(err){
         console.log(err);
         res.status(500).json({error:err, message:'error in getting all message'});
     }
-}
-
-exports.getparticularGroupMessage = async(req,res,next) => {
-    try{
-    const groupId=req.body.groupId;
-    const messages=await Message.findAll({
-        where: {groupId: groupId} });
-           //attaching name of sender of message
-           for(let i=0;i<messages.length;i++){
-            //finding name of sender
-            const user= await User.findAll({where:{id:messages[i].userId}});
-            //adding name to messages for response
-            let obj={name: user[0].name};
-            messages[i]= {...messages[i], ...obj};
-            }
-            res.status(201).json({message:messages});
-        }
-        catch(err){
-            console.log(err);
-            res.status(500).json({error:err, message:'error in getting all message'});
-        }
 }

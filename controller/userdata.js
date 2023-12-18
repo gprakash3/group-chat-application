@@ -67,7 +67,7 @@ exports.checkLoginPassword = async(req,res,next) => {
             bcrypt.compare(password, userData.password, (error,response) =>{
                 if(response===true){
                     const x=jwt.sign({userId:userData.id, name:userData.name}, 'secretKey');
-                    res.json({token:x});
+                    res.json({token:x, currentUser: userData.name, currentuserId:userData.id});
                 }
                 else{
                     res.status(401).json({msg:'User not authorized'});

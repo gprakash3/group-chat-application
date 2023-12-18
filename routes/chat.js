@@ -6,8 +6,8 @@ const authController=require('../middleware/auth');
 const router= express.Router();
 
 router.post('/sendMessage', authController.authenticate, chatController.saveMsgToDB);
-router.get('/getCommonGroupMessage', chatController.getCommonGroupMessage);
-router.post('/getParticularGroupMessage', chatController.getparticularGroupMessage);
+
+router.post('/getGroupMessage', chatController.getGroupMessage);
 
 router.post('/createGroup', authController.authenticate, groupController.createGroup);
 router.get('/getAllUser', groupController.getAllUser);

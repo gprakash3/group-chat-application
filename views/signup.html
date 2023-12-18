@@ -46,15 +46,15 @@
         const password=document.getElementById('pswd').value;
         const obj={name:name,email:email,phone:phone,password:password};
         // console.log('object value in obj', obj)
-        const res= await axios.post(`http://3.109.59.67:3000/checkExistingUser`, obj);
+        const res= await axios.post(`http://localhost:8080/checkExistingUser`, obj);
         // console.log(res.data);
         if(res.data.user){
             alert('user already exist');
         }
         else{
-            const resp=await axios.post(`http://3.109.59.67:3000/addUserToDB`, obj);
+            const resp=await axios.post(`http://localhost:8080/addUserToDB`, obj);
             alert('user signed up successfully');
-            window.location.href=`http://3.109.59.67:3000/login`;
+            window.location.href=`http://localhost:8080/login`;
         }
         }
         catch(err){

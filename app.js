@@ -1,9 +1,12 @@
 const express = require('express');
-const fs = require('fs');
+
 const bodyParser = require('body-parser');
 const sequelize = require('./util/database');
 const app = express();
 const path = require('path');
+
+const http = require('http');        //new
+const server = http.createServer(app); //new
 
 const User=require('./model/user');
 const Message=require('./model/message');
@@ -16,6 +19,7 @@ const cors = require('cors');
 app.use(cors({origin:"*",
 methods:["GET", "POST", "DELETE"]
 }));
+
 require('dotenv').config()
 
 app.use(bodyParser.json({ extended: false }));
@@ -46,12 +50,16 @@ User.belongsToMany(Group, { through: UserGroup });
 User.belongsToMany(Group, {through:AdminGroup});
 Group.belongsToMany(User, {through:AdminGroup});
 
+//app.js
+const socketio = require('./socket.js');
 
+//after creating your server etc
+const io = socketio.getIo(server);
 
 sequelize.sync()
     // sequelize.sync({alter:true})
     .then(result => {
         console.log('app started');
-        app.listen(3000);
+        server.listen(8080);
     })
     .catch(err => console.log(err));

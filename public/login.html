@@ -57,10 +57,10 @@
             e.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            let res = await axios.post(`http:// 65.1.112.255:3000/login/passwordValidation`, { email: email, password: password });
+            let res = await axios.post(`http://65.1.112.255:3000/login/passwordValidation`, { email: email, password: password });
             display.innerHTML = 'User Successfully logged in';
             localStorage.setItem('token', res.data.token);
-            window.location.href=`http:// 65.1.112.255:3000/chatpage`;
+            window.location.href=`http://65.1.112.255:3000/chatpage`;
         }
         catch (err) {
             console.log(err);

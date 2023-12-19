@@ -13,7 +13,7 @@ var socket = io();
 socket.on('connect', async () => {
     //adding to all groups of which user is part of
     let rooms = [];
-    const resp = await axios.get(`http:// 65.1.112.255:3000/getAllUserGroup`, { headers: { "Authorization": token } });
+    const resp = await axios.get(`http://65.1.112.255:3000/getAllUserGroup`, { headers: { "Authorization": token } });
     for (let i = 0; i < resp.data.groupdata.length; i++) {
         rooms.push(resp.data.groupdata[i].id);
     }
@@ -157,11 +157,11 @@ imgsharebtn.addEventListener('click', async (e) => {
         const file = fileInput.files[0];
         const formData = new FormData();
         formData.append('file', file);
-        const res = await axios.post(`http:// 65.1.112.255:3000/uploadtos3`, formData);
+        const res = await axios.post(`http://65.1.112.255:3000/uploadtos3`, formData);
         fileInput.value = '';
         console.log(res.data.fileUrl);
         await appendmessage(`${currentUserName}:${res.data.fileUrl}`);
-        const resp = await axios.post(`http:// 65.1.112.255:3000/sendMessage`, { msg: res.data.fileUrl, groupid: currentgroupId }, { headers: { "Authorization": token } });
+        const resp = await axios.post(`http://65.1.112.255:3000/sendMessage`, { msg: res.data.fileUrl, groupid: currentgroupId }, { headers: { "Authorization": token } });
         console.log(resp.data);
 
         document.getElementById('messages').value = '';
@@ -186,7 +186,7 @@ submitbtn.addEventListener('click', async (e) => {
         const msg1 = document.getElementById('messages').value;
         let currentgroupId = localStorage.getItem('currentGroupId') | 0;
         let currentUserName = localStorage.getItem('currenetUserName');
-        const res = await axios.post(`http:// 65.1.112.255:3000/sendMessage`, { msg: msg1, groupid: currentgroupId }, { headers: { "Authorization": token } });
+        const res = await axios.post(`http://65.1.112.255:3000/sendMessage`, { msg: msg1, groupid: currentgroupId }, { headers: { "Authorization": token } });
         appendmessage(`${currentUserName}:${msg1}`);
         document.getElementById('messages').value = '';
         if (currentgroupId == 0) {
@@ -206,7 +206,7 @@ submitbtn.addEventListener('click', async (e) => {
 //update groupnames on tile if user is added or get removed from group
 async function updategrouptile() {
     try {
-        const res = await axios.get(`http:// 65.1.112.255:3000/getAllUserGroup`, { headers: { "Authorization": token } });
+        const res = await axios.get(`http://65.1.112.255:3000/getAllUserGroup`, { headers: { "Authorization": token } });
         console.log(res.data.groupdata);
         const groupnames = document.getElementById('groupnames');
         groupnames.innerHTML = '';
@@ -227,7 +227,7 @@ async function updategrouptile() {
 async function checkgroupmembership() {
     try {
         const groupid = localStorage.getItem('currentGroupId');
-        const res = await axios.post(`http:// 65.1.112.255:3000/checkgroupmembership`, { groupid: groupid }, { headers: { "Authorization": token } });
+        const res = await axios.post(`http://65.1.112.255:3000/checkgroupmembership`, { groupid: groupid }, { headers: { "Authorization": token } });
         console.log(res.data);
         if (!res.data.isMember) {
             localStorage.setItem('currentGroupId', 0);
@@ -249,7 +249,7 @@ async function actiononreloadpage() {
         await checkgroupmembership();
         await displayAllGroup();
         currentgroupId = localStorage.getItem('currentGroupId') | 0;
-        const res = await axios.get(`http:// 65.1.112.255:3000/getCurrentUser`, { headers: { "Authorization": token } })
+        const res = await axios.get(`http://65.1.112.255:3000/getCurrentUser`, { headers: { "Authorization": token } })
         console.log(res.data.currentuser);
         currentUserId = res.data.currentuserid;
         const currentuser = document.getElementById('currentuser');
@@ -276,7 +276,7 @@ async function savemessagetoLS() {
         //To find latest message, calculating ID from where we should read messages so that we get last 15 message at most.
         let indexOfMsgSaved = localStorage.getItem(`${currentgroupId}messagecount`) | 0;
         var startingFilterIndex = (indexOfMsgSaved - 15) > 0 ? indexOfMsgSaved - 15 : 0;
-        const res = await axios.post(`http:// 65.1.112.255:3000/getGroupMessage?start=${startingFilterIndex}`, { groupid: currentgroupId });
+        const res = await axios.post(`http://65.1.112.255:3000/getGroupMessage?start=${startingFilterIndex}`, { groupid: currentgroupId });
         //storing highest ID that we received.
         if (res.data.message.length == 0) {
             display.innerHTML = 'No message';
@@ -338,9 +338,9 @@ createnewgroup.addEventListener('click', async (e) => {
         e.preventDefault();
         entergroupname.style.display = 'none';
         const groupName = document.getElementById('groupname').value;
-        const resp = await axios.post(`http:// 65.1.112.255:3000/createGroup`, { groupname: groupName }, { headers: { "Authorization": token } });
+        const resp = await axios.post(`http://65.1.112.255:3000/createGroup`, { groupname: groupName }, { headers: { "Authorization": token } });
         console.log(resp.data.response.id);
-        const res = await axios.get(`http:// 65.1.112.255:3000/getAllUser`);
+        const res = await axios.get(`http://65.1.112.255:3000/getAllUser`);
         console.log(res.data.user);
         const showAllUser = document.getElementById('showAllUser');
         showAllUser.classList.toggle('show');
@@ -382,7 +382,7 @@ async function showAllUserOnTile(obj, groupID) {
                     ids.push(checkboxes[i].id);
                 }
             }
-            const res = await axios.post(`http:// 65.1.112.255:3000/addUsersToGroup`, { ids: ids, groupid: groupID }, { headers: { "Authorization": token } })
+            const res = await axios.post(`http://65.1.112.255:3000/addUsersToGroup`, { ids: ids, groupid: groupID }, { headers: { "Authorization": token } })
             alert('group created');
             socket.emit('new group created', 'group created');
             location.reload();
@@ -396,7 +396,7 @@ async function showAllUserOnTile(obj, groupID) {
 //display all group with currentUser as member on left tiles
 async function displayAllGroup() {
     try {
-        const res = await axios.get(`http:// 65.1.112.255:3000/getAllUserGroup`, { headers: { "Authorization": token } });
+        const res = await axios.get(`http://65.1.112.255:3000/getAllUserGroup`, { headers: { "Authorization": token } });
         console.log(res.data.groupdata);
         let obj = { id: 0, groupname: "Common Group", createdby: '' };
         showGroupNameontile(obj);
@@ -460,7 +460,7 @@ async function showGroupNameontile(obj) {
 // //admin functionalities based on user
 async function facilitiesforadmin(groupid) {
     try {
-        const res = await axios.post(`http:// 65.1.112.255:3000/checkUserIsAdmin`, { groupid: groupid }, { headers: { "Authorization": token } });
+        const res = await axios.post(`http://65.1.112.255:3000/checkUserIsAdmin`, { groupid: groupid }, { headers: { "Authorization": token } });
 
         if (res.data.isAdmin) {
             document.getElementById("searchuserbtn").disabled = false;
@@ -490,7 +490,7 @@ addusertogroupbtn.addEventListener('click', async (e) => {
         const data = document.getElementById('searchuser').value;
         const filtername = document.getElementById('searchuserfilter').value;
         const groupId = localStorage.getItem('currentGroupId');
-        const res = await axios.post(`http:// 65.1.112.255:3000/getUsertoaddingroupAdmin`, { groupid: groupId, filtername: filtername, data: data });
+        const res = await axios.post(`http://65.1.112.255:3000/getUsertoaddingroupAdmin`, { groupid: groupId, filtername: filtername, data: data });
         if (!res.data) {
             alert('user not found');
         }
@@ -528,7 +528,7 @@ async function showUserforAdminonScreen(obj, groupid) {
         btn.addEventListener('click', async (ev) => {
             try {
                 ev.preventDefault();
-                const res = await axios.post(`http:// 65.1.112.255:3000/AddusertogroupAdmin`, { id: obj.id, groupid: groupid });
+                const res = await axios.post(`http://65.1.112.255:3000/AddusertogroupAdmin`, { id: obj.id, groupid: groupid });
                 console.log(res.data);
                 alert('user successfully added to group');
                 div.removeChild(li);
@@ -560,7 +560,7 @@ searchuserbtn.addEventListener('click', async (e) => {
         e.preventDefault();
         const display = document.getElementById('displayusertomakeadmin');
         const groupid = localStorage.getItem('currentGroupId');
-        const res = await axios.post(`http:// 65.1.112.255:3000/getAllUserforAdmin`, { groupid: groupid });
+        const res = await axios.post(`http://65.1.112.255:3000/getAllUserforAdmin`, { groupid: groupid });
         display.innerHTML = '';
         if (res.data.userdata.length === 0) { errordisplay.innerHTML = `No more user to make admin of group - All user are admin`; }
         for (let i = 0; i < res.data.userdata.length; i++) {
@@ -579,7 +579,7 @@ searchuserbtn.addEventListener('click', async (e) => {
             btn.addEventListener('click', async (ev) => {
                 try {
                     ev.preventDefault();
-                    const resp = await axios.post(`http:// 65.1.112.255:3000/makeGroupAdmin`, { id: res.data.userdata[i].id, groupid: groupid }, { headers: { "Authorization": token } });
+                    const resp = await axios.post(`http://65.1.112.255:3000/makeGroupAdmin`, { id: res.data.userdata[i].id, groupid: groupid }, { headers: { "Authorization": token } });
                     errordisplay.innerHTML = `${res.data.userdata[i].name} made Admin of Group`;
                     div.removeChild(li);
                     console.log(resp.data);
@@ -607,7 +607,7 @@ removeuserfromgroupbtn.addEventListener('click', async (e) => {
         let groupid = localStorage.getItem('currentGroupId');
         const display = document.getElementById('displayUserToBeremovedfromGroup');
         display.innerHTML = '';
-        const res = await axios.post(`http:// 65.1.112.255:3000/getAllUserOfGroup`, { groupid: groupid }, { headers: { "Authorization": token } });
+        const res = await axios.post(`http://65.1.112.255:3000/getAllUserOfGroup`, { groupid: groupid }, { headers: { "Authorization": token } });
         console.log(res.data);
         for (let i = 0; i < res.data.userdata.length; i++) {
             const div = document.createElement('div');
@@ -623,7 +623,7 @@ removeuserfromgroupbtn.addEventListener('click', async (e) => {
             removebtn.addEventListener('click', async (ev) => {
                 try {
                     ev.preventDefault();
-                    const resp = await axios.post(`http:// 65.1.112.255:3000/removeUserFromGroup`, { groupid: groupid, userid: res.data.userdata[i].id });
+                    const resp = await axios.post(`http://65.1.112.255:3000/removeUserFromGroup`, { groupid: groupid, userid: res.data.userdata[i].id });
                     alert('user successfully removed from group');
                     console.log(resp.data);
                     //sending socket event

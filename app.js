@@ -28,12 +28,14 @@ app.use("/static", express.static('./static/'));
 
 const userDataRoute=require('./routes/userdata');
 const chatRoute=require('./routes/chat');
+const imguploadRoute= require('./routes/imageshare');
 
 app.use(userDataRoute);
 app.use(chatRoute);
-app.use((req,res) => {
-    res.sendFile(path.join(__dirname, `public/login.html`));
-})
+app.use(imguploadRoute);
+// app.use((req,res) => {
+//     res.sendFile(path.join(__dirname, `public/login.html`));
+// })
 
 User.hasMany(Message);
 Message.belongsTo(User);

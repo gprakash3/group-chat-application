@@ -8,7 +8,6 @@ var previousId;
 const display = document.getElementById('messageDisplay');
 const errordisplay = document.getElementById('errordisplay');
 
-// import { io } from "socket.io-client";
 var socket = io();
 
 socket.on('connect', async () => {
@@ -82,12 +81,68 @@ async function displaysystemmessage(message) {
 }
 
 async function appendmessage(message) {
+    //checking if message contain image link 
+const indexOfColon = message.indexOf(':');
+let part1;
+let part2;
+if (indexOfColon !== -1) {
+   part1 = message.substring(0, indexOfColon);
+   part2 = message.substring(indexOfColon + 1);
+}
+if(part2!=undefined){ 
+    const isLink = part2.startsWith('https', 0, 5);
+    if(isLink){
+        appendmessage(part1);
+        appendImg(part2);
+        return;
+    }
+}
     const div = document.createElement('div');
     const li = document.createElement('li');
     li.appendChild(document.createTextNode(message));
     div.appendChild(li);
     display.appendChild(div);
 }
+
+async function appendImg(obj) {
+    const div = document.createElement('div');
+    const img = document.createElement('img');
+    img.className = "image";
+    img.src = `${obj}`; 
+    div.appendChild(img);
+    display.appendChild(div);
+}
+
+const imgsharebtn= document.getElementById('sendimgbtn');
+imgsharebtn.addEventListener('click', async(e) =>{
+    try {
+        e.preventDefault();
+        console.log('clicked');
+        const fileInput = document.getElementById('uploadfile');
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await axios.post(`http://localhost:8080/uploadtos3`, formData);
+        fileInput.value='';
+        console.log(res.data.fileUrl);
+        await appendmessage(`${currentUserName}:${res.data.fileUrl}`);
+        const resp = await axios.post(`http://localhost:8080/sendMessage`, { msg: res.data.fileUrl, groupid: currentgroupId }, { headers: { "Authorization": token } });
+        console.log(resp.data);
+        
+        document.getElementById('messages').value = '';
+        if (currentgroupId == 0) {
+            socket.emit('send-message-commongroup', `${currentUserName} share image:${res.data.fileUrl}`);
+        }
+        else {
+            const obj = { msg: `${currentUserName}:${res.data.fileUrl}`, groupid: currentgroupId }
+            socket.emit('send-message-particulargroup', obj, currentgroupId);
+        }
+    }
+    catch (err) {
+        console.log(err);
+        console.log(err.message);
+    }
+})
 
 const submitbtn = document.getElementById('sendbtn');
 submitbtn.addEventListener('click', async (e) => {
@@ -147,17 +202,6 @@ async function checkgroupmembership() {
         console.log(err);
         errordisplay.innerHTML = 'something went wrong ' + `${err.message}`;
     }
-}
-
-//To display user sent message on screen
-async function displaymessage(sendername, message) {
-    const div = document.createElement('div');
-    const li = document.createElement('li');
-    li.appendChild(document.createTextNode(sendername));
-    li.appendChild(document.createTextNode(' : '));
-    li.appendChild(document.createTextNode(message));
-    div.appendChild(li);
-    display.appendChild(div);
 }
 
 //function when page is refreshed
@@ -238,7 +282,8 @@ async function updatechatonscreen(groupid) {
         display.innerHTML = '';
         //displaying message on screen which is read from localstorage
         for (let i = 0; i < retArray.length; i++) {
-            display.innerHTML += retArray[i] + `<br>`;
+            // display.innerHTML += retArray[i] + `<br>`;
+            appendmessage(retArray[i]);
         }
     }
     catch (err) {
@@ -270,6 +315,7 @@ createnewgroup.addEventListener('click', async (e) => {
 });
 //show user when clicked on createGroup button.
 async function showAllUserOnTile(obj, groupID) {
+    try{
     const showAllUser = document.getElementById('showAllUser');
     for (let i = 0; i < obj.length; i++) {
         if (obj[i].id === currentUserId) {
@@ -298,14 +344,18 @@ async function showAllUserOnTile(obj, groupID) {
         let ids = [];
         for (var i = 0; i < checkboxes.length; i++) {
             if (checkboxes[i].checked) {
-                // console.log(checkboxes[i].value, checkboxes[i].id);
                 ids.push(checkboxes[i].id);
             }
         }
         const res = await axios.post(`http://localhost:8080/addUsersToGroup`, { ids: ids, groupid: groupID }, { headers: { "Authorization": token } })
         alert('group created');
+        socket.emit('new group created', 'group created');
         location.reload();
     })
+}
+catch(err){
+    console.log(err);
+}
 }
 
 //display all group with currentUser as member on left tiles
@@ -521,6 +571,7 @@ removeuserfromgroupbtn.addEventListener('click', async (e) => {
         e.preventDefault();
         let groupid = localStorage.getItem('currentGroupId');
         const display = document.getElementById('displayUserToBeremovedfromGroup');
+        display.innerHTML='';
         const res = await axios.post(`http://localhost:8080/getAllUserOfGroup`, { groupid: groupid }, { headers: { "Authorization": token } });
         console.log(res.data);
         for (let i = 0; i < res.data.userdata.length; i++) {

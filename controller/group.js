@@ -75,16 +75,11 @@ exports.getAllUserGroup = async (req, res, next) => {
 exports.addUserToGroup = async (req, res, next) => {
     try {
         const ids = req.body.ids;
-        const currentUserId = req.user.id;
         const groupId = req.body.groupid;
-        // const usergroup = await UserGroup.create({ groupId: groupId, userId: currentUserId, isAdmin:true });
-        // const group= await Group.findByPk(groupId);
         for (let i = 0; i < ids.length; i++) {
-            const usergroup = await UserGroup.create({ groupId: groupId, userId: ids[i], isAdmin:false })
+            await UserGroup.create({ groupId: groupId, userId: ids[i], isAdmin:false })
         }
-        res.status(201).json({ res: usergroup, msg: "user added to group" });
-        // const usergroup = await UserGroup.create({where:{}})
-        // const users = UserGroup.create()
+        res.status(201).json({msg: "user added to group" });
     }
     catch (err) {
         res.status(500).json({ error: err, msg: 'error in adding user to group' });

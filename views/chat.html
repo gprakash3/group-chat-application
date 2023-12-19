@@ -17,29 +17,21 @@
         #textarea {
             width: 100%;
             display: inline-flex;
-        }
-
-        #messagearea {
-            width: 75%;
-            border: 1px solid aqua;
-            margin: 1rem auto;
+            /* height:  max-content; */
         }
 
         #chatarea {
             width: 100%;
             border: 1px solid aqua;
-            height: 25rem;
+            /* height:  max-content; */
             margin: 0rem auto;
             display: inline-flex;
         }
 
         #messagearea {
             width: 100%;
-            border: 1px solid aqua;
             height: 25rem;
             margin: 1rem auto;
-            /* overflow: scroll; */
-            overflow-y: scroll;
             padding: 0.1rem 0.1rem;
         }
 
@@ -74,21 +66,20 @@
             display: inline-flex;
         }
 
-        #sendmsg {
-            width: 90%;
-        }
-
         #bottomcontainer {
-            width: 95%;
-            margin-bottom: 0.5rem;
-            position: absolute;
-            bottom: 1rem;
+            width: 99%;
+            margin-bottom: 0.1rem;
             background-color: aquamarine;
+            display: flex;
+            flex-direction: row;
         }
 
         #sendmsg {
+            display: inline-flex;
+            flex-direction: column;
             margin: 0.5rem auto;
             width: fit-content;
+            flex-shrink: 1;
         }
 
         .hide {
@@ -118,6 +109,8 @@
         #messageDisplay {
             width: 70%;
             padding-left: 0.5rem;
+            overflow-y: scroll;
+            height: 25rem;
         }
 
         .systemmessage {
@@ -129,10 +122,16 @@
             font-size: small;
             margin: auto;
         }
+
+        .image {
+            width: 50%;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
 <body>
+    <div id="screen">
     <div id="navbar">
         <div id="appname" style="margin: auto 2rem;">
             <h3>GROUPCHAT</h3>
@@ -161,7 +160,7 @@
             text-align: center;
             background-color: aquamarine;
             border-radius: 50px;
-            height: max-content;
+            height: auto;
             border: 3px solid;">Group</p>
 
             <div id="groupnames">
@@ -212,22 +211,27 @@
             </div>
 
         </div>
-
+       
     </div>
-
-
     <div id="bottomcontainer">
+        <div id="sendfile" style="display: inline-flex; flex-direction: column;">
+            choose file to send Image
+            <!-- <form action="/uploadImgToS3" method="POST" enctype="multipart/form-data"> -->
+            <form style="display: inline-flex; flex-direction: column;">
+                <input type="file" name="photo" id="uploadfile">
+                <input type="submit" id="sendimgbtn" value="send image" style="border-radius: 10%; padding: 1px;">
+            </form>
+        </div>
         <div id="sendmsg">
-            <input type="button" id="imageshare" value="img" style="border-radius: 100%; padding: 9px;">
-            <input type="text" name="msg" id="messages" style="width: 25rem; height: 2rem;">
-            <input type="submit" name="send" value="SEND" id="sendbtn" style="width: 3rem; height: 2rem;">
+            <input type="text" name="msg" id="messages" style="width: 130%; height: 1rem;">
+            <input type="submit" name="send" value="SEND" id="sendbtn"
+                style="width: 2.5rem; height: 1rem; padding: inherit;">
         </div>
     </div>
+</div>
+    
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 <script type="module" src="static/chat.js"></script>
-<!-- <script>
-    var socket= io();
-</script> -->
 
 </html>

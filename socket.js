@@ -36,7 +36,9 @@ module.exports = {
         console.log('joined room', room);
       });
 
-
+      socket.on('new group created', message => {
+        socket.broadcast.emit('updateGroupTileonAdd', message);
+      })
       socket.on('user-added-in-group', (message,room) => {
         //to update the group names
         socket.to(room).emit('user_added', message);

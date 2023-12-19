@@ -11,15 +11,15 @@ const errordisplay = document.getElementById('errordisplay');
 var socket = io();
 
 socket.on('connect', async () => {
-     //adding to all groups of which user is part of
-     let rooms=[];
-     const resp = await axios.get(`http://localhost:8080/getAllUserGroup`, { headers: { "Authorization": token } });
-     for(let i=0;i<resp.data.groupdata.length;i++){
+    //adding to all groups of which user is part of
+    let rooms = [];
+    const resp = await axios.get(`http://localhost:8080/getAllUserGroup`, { headers: { "Authorization": token } });
+    for (let i = 0; i < resp.data.groupdata.length; i++) {
         rooms.push(resp.data.groupdata[i].id);
-     }
-     socket.emit('join-room', rooms);
-     socket.emit('join-room', localStorage.getItem('currentGroupId'));
-     console.log('joined these rooms', rooms);
+    }
+    socket.emit('join-room', rooms);
+    socket.emit('join-room', localStorage.getItem('currentGroupId'));
+    console.log('joined these rooms', rooms);
 })
 
 if (currentgroupId == 0) {
@@ -34,26 +34,26 @@ socket.on('receive-message-particulargroup', data => {
 
 //when user get added to group
 socket.on('user_added', message => {
-    console.log(message.userID, currentUserId);        
+    console.log(message.userID, currentUserId);
     displaysystemmessage(`${message.addername} added ${message.userName}`);
 })
 // as group name will not be available on screen when we get added hence message broadcast to us will not reached.
-socket.on('updateGroupTileonAdd', async(message) =>{
+socket.on('updateGroupTileonAdd', async (message) => {
     console.log(message);
-    await updategrouptile(); 
+    await updategrouptile();
     document.getElementById(`${localStorage.getItem('currentGroupId')}`).style.backgroundColor = "aqua";
 })
 //update tiles of all user if user get added or deleted from group
-socket.on('updategrouptileonremove', async(message)=>{
+socket.on('updategrouptileonremove', async (message) => {
     console.log(message);
     await updategrouptile();
     document.getElementById(`${localStorage.getItem('currentGroupId')}`).style.backgroundColor = "aqua";
 })
 
 //since user is removed, move user page to common group
-socket.on('user_remove', async(message) =>{
+socket.on('user_remove', async (message) => {
     console.log("removed from group chat.js", message.userID, currentUserId);
-    if(message.userID == currentUserId){
+    if (message.userID == currentUserId) {
         console.log("removed from group chat.js", message.userID, currentUserId);
         // displaysystemmessage(`${message.addername} removed you`);
         await updategrouptile();
@@ -69,8 +69,8 @@ socket.on('user_remove', async(message) =>{
 async function displaysystemmessage(message) {
     try {
         const div = document.createElement('div');
-        const li = document.createElement('li');        
-        li.appendChild(document.createTextNode(message)); 
+        const li = document.createElement('li');
+        li.appendChild(document.createTextNode(message));
         div.appendChild(li);
         div.className = "systemmessage";
         display.appendChild(div);
@@ -82,21 +82,28 @@ async function displaysystemmessage(message) {
 
 async function appendmessage(message) {
     //checking if message contain image link 
-const indexOfColon = message.indexOf(':');
-let part1;
-let part2;
-if (indexOfColon !== -1) {
-   part1 = message.substring(0, indexOfColon);
-   part2 = message.substring(indexOfColon + 1);
-}
-if(part2!=undefined){ 
-    const isLink = part2.startsWith('https', 0, 5);
-    if(isLink){
+    const indexOfColon = message.indexOf(':');
+    let part1;
+    let part2;
+    if (indexOfColon !== -1) {
+        part1 = message.substring(0, indexOfColon);
+        part2 = message.substring(indexOfColon + 1);
+    }
+    if (part2.includes("PDF") && part2.includes("https")) {
+        appendmessage(part1);
+        appendpdf(part2);
+        return;
+    }
+    else if(part2.includes("VID") && part2.includes("https")){
+        appendmessage(part1);
+        appendVid(part2);
+        return;
+    }
+    else if(part2.includes("IMG") && part2.includes("https")){
         appendmessage(part1);
         appendImg(part2);
         return;
     }
-}
     const div = document.createElement('div');
     const li = document.createElement('li');
     li.appendChild(document.createTextNode(message));
@@ -108,13 +115,35 @@ async function appendImg(obj) {
     const div = document.createElement('div');
     const img = document.createElement('img');
     img.className = "image";
-    img.src = `${obj}`; 
+    img.src = `${obj}`;
     div.appendChild(img);
     display.appendChild(div);
 }
 
-const imgsharebtn= document.getElementById('sendimgbtn');
-imgsharebtn.addEventListener('click', async(e) =>{
+async function appendVid(obj) {
+    const div = document.createElement('div');
+    const video = document.createElement('video');
+    video.width = 500; 
+    video.height = 300; 
+    video.controls = true;
+    var source = document.createElement('source');
+    source.src = `${obj}`;
+    source.type = 'video/mp4';
+    video.appendChild(source);
+    div.appendChild(video);
+    display.appendChild(div);
+}
+
+async function appendpdf(obj) {
+    const div = document.createElement('div');
+    const text = document.createTextNode('Click here to download pdf:')
+    div.appendChild(text);
+    div.innerHTML+=`<a  href=${obj}>pdf link</a>`;
+    display.appendChild(div);
+}
+
+const imgsharebtn = document.getElementById('sendimgbtn');
+imgsharebtn.addEventListener('click', async (e) => {
     try {
         e.preventDefault();
         console.log('clicked');
@@ -123,12 +152,12 @@ imgsharebtn.addEventListener('click', async(e) =>{
         const formData = new FormData();
         formData.append('file', file);
         const res = await axios.post(`http://localhost:8080/uploadtos3`, formData);
-        fileInput.value='';
+        fileInput.value = '';
         console.log(res.data.fileUrl);
         await appendmessage(`${currentUserName}:${res.data.fileUrl}`);
         const resp = await axios.post(`http://localhost:8080/sendMessage`, { msg: res.data.fileUrl, groupid: currentgroupId }, { headers: { "Authorization": token } });
         console.log(resp.data);
-        
+
         document.getElementById('messages').value = '';
         if (currentgroupId == 0) {
             socket.emit('send-message-commongroup', `${currentUserName} share image:${res.data.fileUrl}`);
@@ -239,11 +268,11 @@ async function savemessagetoLS() {
     try {
         let messages = [];
         //To find latest message, calculating ID from where we should read messages so that we get last 15 message at most.
-        let indexOfMsgSaved=localStorage.getItem(`${currentgroupId}messagecount`) | 0;
+        let indexOfMsgSaved = localStorage.getItem(`${currentgroupId}messagecount`) | 0;
         var startingFilterIndex = (indexOfMsgSaved - 15) > 0 ? indexOfMsgSaved - 15 : 0;
         const res = await axios.post(`http://localhost:8080/getGroupMessage?start=${startingFilterIndex}`, { groupid: currentgroupId });
         //storing highest ID that we received.
-        if(res.data.message.length==0){
+        if (res.data.message.length == 0) {
             display.innerHTML = 'No message';
             return;
         };
@@ -315,47 +344,47 @@ createnewgroup.addEventListener('click', async (e) => {
 });
 //show user when clicked on createGroup button.
 async function showAllUserOnTile(obj, groupID) {
-    try{
-    const showAllUser = document.getElementById('showAllUser');
-    for (let i = 0; i < obj.length; i++) {
-        if (obj[i].id === currentUserId) {
-            continue;
-        }
-        const div = document.createElement('div');
-        const li = document.createElement('li');
-        li.appendChild(document.createTextNode(obj[i].name));
-        var newCheckBox = document.createElement('input');
-        newCheckBox.type = 'checkbox';
-        newCheckBox.name = 'user';
-        newCheckBox.id = `${obj[i].id}`;
-        li.appendChild(newCheckBox);
-        div.appendChild(li);
-        showAllUser.appendChild(div);
-
-    }
-    const addUser = document.createElement('button');
-    addUser.innerHTML = 'Add user';
-    showAllUser.appendChild(addUser);
-
-    addUser.addEventListener('click', async (e) => {
-        e.preventDefault();
-        var checkboxes =
-            document.getElementsByName('user');
-        let ids = [];
-        for (var i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) {
-                ids.push(checkboxes[i].id);
+    try {
+        const showAllUser = document.getElementById('showAllUser');
+        for (let i = 0; i < obj.length; i++) {
+            if (obj[i].id === currentUserId) {
+                continue;
             }
+            const div = document.createElement('div');
+            const li = document.createElement('li');
+            li.appendChild(document.createTextNode(obj[i].name));
+            var newCheckBox = document.createElement('input');
+            newCheckBox.type = 'checkbox';
+            newCheckBox.name = 'user';
+            newCheckBox.id = `${obj[i].id}`;
+            li.appendChild(newCheckBox);
+            div.appendChild(li);
+            showAllUser.appendChild(div);
+
         }
-        const res = await axios.post(`http://localhost:8080/addUsersToGroup`, { ids: ids, groupid: groupID }, { headers: { "Authorization": token } })
-        alert('group created');
-        socket.emit('new group created', 'group created');
-        location.reload();
-    })
-}
-catch(err){
-    console.log(err);
-}
+        const addUser = document.createElement('button');
+        addUser.innerHTML = 'Add user';
+        showAllUser.appendChild(addUser);
+
+        addUser.addEventListener('click', async (e) => {
+            e.preventDefault();
+            var checkboxes =
+                document.getElementsByName('user');
+            let ids = [];
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    ids.push(checkboxes[i].id);
+                }
+            }
+            const res = await axios.post(`http://localhost:8080/addUsersToGroup`, { ids: ids, groupid: groupID }, { headers: { "Authorization": token } })
+            alert('group created');
+            socket.emit('new group created', 'group created');
+            location.reload();
+        })
+    }
+    catch (err) {
+        console.log(err);
+    }
 }
 
 //display all group with currentUser as member on left tiles
@@ -409,7 +438,7 @@ async function showGroupNameontile(obj) {
             document.getElementById('GroupNamenav').innerHTML = obj.groupname;
             if (currentgroupId == 0) {
                 document.getElementById('createdBynav').innerHTML = '';
-                
+
             } else {
                 document.getElementById('createdBynav').innerHTML = "created By: " + obj.createdby;
             }
@@ -499,7 +528,7 @@ async function showUserforAdminonScreen(obj, groupid) {
                 div.removeChild(li);
 
                 //sending event to socket if user is added to group
-                let groupuserdata = { userID: obj.id, userName: obj.name, addername: currentUserName, groupid:groupid }
+                let groupuserdata = { userID: obj.id, userName: obj.name, addername: currentUserName, groupid: groupid }
                 socket.emit('user-added-in-group', groupuserdata, `${groupid}`);
 
             }
@@ -571,7 +600,7 @@ removeuserfromgroupbtn.addEventListener('click', async (e) => {
         e.preventDefault();
         let groupid = localStorage.getItem('currentGroupId');
         const display = document.getElementById('displayUserToBeremovedfromGroup');
-        display.innerHTML='';
+        display.innerHTML = '';
         const res = await axios.post(`http://localhost:8080/getAllUserOfGroup`, { groupid: groupid }, { headers: { "Authorization": token } });
         console.log(res.data);
         for (let i = 0; i < res.data.userdata.length; i++) {
@@ -592,7 +621,7 @@ removeuserfromgroupbtn.addEventListener('click', async (e) => {
                     alert('user successfully removed from group');
                     console.log(resp.data);
                     //sending socket event
-                    let groupuserdata = { userID: res.data.userdata[i].id, userName: res.data.userdata[i].name, addername: currentUserName, groupid:groupid }
+                    let groupuserdata = { userID: res.data.userdata[i].id, userName: res.data.userdata[i].name, addername: currentUserName, groupid: groupid }
                     socket.emit('user-remove-from-group', groupuserdata, `${groupid}`);
                     div.removeChild(li);
                 }

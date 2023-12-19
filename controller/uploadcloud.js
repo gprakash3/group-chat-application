@@ -35,11 +35,21 @@ function uploadToS3(data, filename) {
     try{
         const file = req.file;
         // Check if a file was provided
-       
+       console.log(file);
         const data= file.buffer;
+        let filename;
+        if(file.mimetype.startsWith("image")){
         // Create a unique key for the file in your S3 bucket
-        const filename = `IMG/${new Date()}-${file.originalname}`;
-
+        filename = `IMG/${new Date()}-${file.originalname}`;
+        }
+        else if(file.mimetype.startsWith("video")){
+          // Create a unique key for the file in your S3 bucket
+          filename = `VID/${new Date()}-${file.originalname}`;
+          }
+          else if(file.mimetype.startsWith("application/pdf")){
+            // Create a unique key for the file in your S3 bucket
+            filename = `PDF/${new Date()}-${file.originalname}`;
+            }
         // res.status(201).json({filename:filename, data: data, file:file});
         const fileUrl = await uploadToS3(data, filename);
             res.status(200).json({ fileUrl, success: true })

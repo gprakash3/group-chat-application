@@ -80,6 +80,6 @@ sequelize.sync()
         });
 
         console.log('app started');
-        server.listen(8080);
+        server.listen(3000);
     })
     .catch(err => console.log(err));

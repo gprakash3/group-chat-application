@@ -26,6 +26,10 @@
             /* height:  max-content; */
             margin: 0rem auto;
             display: inline-flex;
+            
+        }
+        #messageDisplay div:nth-child(2n) {
+            background-color: #cdebe2;
         }
 
         #messagearea {
@@ -127,40 +131,46 @@
             width: 50%;
             border-radius: 5px;
         }
-        .video{
+
+        .video {
             width: 50%;
             border-radius: 5px;
             height: auto;
         }
+        button{
+            border-radius: 5px;
+        }
+
+        
     </style>
 </head>
 
 <body>
     <div id="screen">
-    <div id="navbar">
-        <div id="appname" style="margin: auto 2rem;">
-            <h3>GROUPCHAT</h3>
-        </div>
+        <div id="navbar">
+            <div id="appname" style="margin: auto 2rem;">
+                <h3>GROUPCHAT</h3>
+            </div>
 
-        <div id="currentuser" style="position: absolute;; right: 2rem; margin: 1rem 1rem;">
+            <div id="currentuser" style="position: absolute;; right: 2rem; margin: 1rem 1rem;">
 
+            </div>
         </div>
-    </div>
-    <div id="errordisplay"></div>
-    <div id="textarea">
-        <div id="tiles">
-            <button type="submit" id="createnewgroup" style="margin: 0.5rem 1rem;
+        <div id="errordisplay"></div>
+        <div id="textarea">
+            <div id="tiles">
+                <button type="submit" id="createnewgroup" style="margin: 0.5rem 1rem;
             padding: 0.2rem 0.1rem;">create new group</button>
-            <div class="hide" id="entergroupname">
-                Enter Group name:
-                <input type="text" name="groupname" id="groupname">
-                <button type="submit" id="groupnamesbmtbtn">CREATE</button>
-            </div>
-            <div class="hide" id="showAllUser">
+                <div class="hide" id="entergroupname">
+                    Enter Group name:
+                    <input type="text" name="groupname" id="groupname">
+                    <button type="submit" id="groupnamesbmtbtn">CREATE</button>
+                </div>
+                <div class="hide" id="showAllUser">
 
-            </div>
-            <hr>
-            <p style="    font-family: 'Courier New', Courier, monospace;
+                </div>
+                <hr>
+                <p style="    font-family: 'Courier New', Courier, monospace;
             color: black;
             text-align: center;
             background-color: aquamarine;
@@ -168,73 +178,74 @@
             height: auto;
             border: 3px solid;">Group</p>
 
-            <div id="groupnames">
-
-            </div>
-
-        </div>
-        <div id="messagearea">
-            <div id="msgnavbar">
-                <div id="GroupNamenav" style="position: relative; min-width: fit-content;
-                margin: 0.5rem;"></div>
-                <div id="createdBynav"
-                    style="position: absolute; right: 1.5rem; min-width:fit-content; margin: 0.5rem;"></div>
-            </div>
-            <div id="chatarea">
-                <div id="messageDisplay">
+                <div id="groupnames">
 
                 </div>
-                <div id="managegroup">
-                    <div id="isUserAdmin"
-                        style="color: darkslategrey; font-style: italic; font-family: cursive; background-color: lightpink;">
+
+            </div>
+            <div id="messagearea">
+                <div id="msgnavbar">
+                    <div id="GroupNamenav" style="position: relative; min-width: fit-content;
+                margin: 0.5rem;"></div>
+                    <div id="createdBynav"
+                        style="position: absolute; right: 1.5rem; min-width:fit-content; margin: 0.5rem;"></div>
+                </div>
+                <div id="chatarea">
+                    <div id="messageDisplay">
+
                     </div>
-                    search user to add in group
-                    <input type="text" id="searchuser" style="width: -webkit-fill-available;" required>
+                    <div id="managegroup">
+                        <div id="isUserAdmin"
+                            style="color: darkslategrey; font-style: italic; font-family: cursive; background-color: lightpink;">
+                        </div>
+                        search user to add in group
+                        <input type="text" id="searchuser" style="width: -webkit-fill-available;" required>
 
-                    <select id="searchuserfilter">
-                        <option value="name" id="username">name</option>
-                        <option value="email" id="useremail">Email</option>
-                        <option value="phone" id="phone">Phone</option>
-                    </select>
-                    <button type="submit" id="addusertogroupbtn">Find user</button>
+                        <select id="searchuserfilter">
+                            <option value="name" id="username">name</option>
+                            <option value="email" id="useremail">Email</option>
+                            <option value="phone" id="phone">Phone</option>
+                        </select>
+                        <button type="submit" id="addusertogroupbtn">Find user</button>
 
-                    <div id="displayusertoaddingroup"></div>
-                    <hr>
-                    <div id="adduserasAdmin">
-                        <button type="button" id="searchuserbtn" style="background-color: rgb(96, 160, 160);">make User
-                            Group Admin</button>
-                        <div id="displayusertomakeadmin"></div>
-                    </div>
-                    <hr>
-                    <div id="removeuserfromgroup">
-                        <button type="button" id="removeuserfromgroupbtn">Remove user</button>
-                        <div id="displayUserToBeremovedfromGroup">
+                        <div id="displayusertoaddingroup"></div>
+                        <hr>
+                        <div id="adduserasAdmin">
+                            <button type="button" id="searchuserbtn" style="background-color: rgb(96, 160, 160);">make
+                                User
+                                Group Admin</button>
+                            <div id="displayusertomakeadmin"></div>
+                        </div>
+                        <hr>
+                        <div id="removeuserfromgroup">
+                            <button type="button" id="removeuserfromgroupbtn">Remove user</button>
+                            <div id="displayUserToBeremovedfromGroup">
 
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </div>
 
         </div>
-       
-    </div>
-    <div id="bottomcontainer">
-        <div id="sendfile" style="display: inline-flex; flex-direction: column;">
-            choose file to send
-            <!-- <form action="/uploadImgToS3" method="POST" enctype="multipart/form-data"> -->
-            <form style="display: inline-flex; flex-direction: column;">
-                <input type="file" name="photo" id="uploadfile">
-                <input type="submit" id="sendimgbtn" value="send file" style="border-radius: 10%; padding: 1px;">
-            </form>
+        <div id="bottomcontainer">
+            <div id="sendfile" style="display: inline-flex; flex-direction: column;">
+                choose file to send
+                <!-- <form action="/uploadImgToS3" method="POST" enctype="multipart/form-data"> -->
+                <form style="display: inline-flex; flex-direction: column;">
+                    <input type="file" name="photo" id="uploadfile">
+                    <input type="submit" id="sendimgbtn" value="send file" style="border-radius: 10%; padding: 1px;">
+                </form>
+            </div>
+            <div id="sendmsg">
+                <input type="text" name="msg" id="messages" style="width: 130%; height: 1rem;">
+                <input type="submit" name="send" value="SEND" id="sendbtn"
+                    style="width: 2.5rem; height: 1rem; padding: inherit;">
+            </div>
         </div>
-        <div id="sendmsg">
-            <input type="text" name="msg" id="messages" style="width: 130%; height: 1rem;">
-            <input type="submit" name="send" value="SEND" id="sendbtn"
-                style="width: 2.5rem; height: 1rem; padding: inherit;">
-        </div>
     </div>
-</div>
-    
+
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
 <script type="module" src="static/chat.js"></script>

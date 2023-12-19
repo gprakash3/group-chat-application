@@ -5,7 +5,7 @@
     padding-top: 1rem;
     padding-bottom: 2rem;
     border-radius: 10px;
-    background-color: rgb(235, 235, 240);
+    background-color: rgb(207, 240, 240);
   }
   
   .forms label,
@@ -19,20 +19,20 @@
   
   .forms input,
   .forms textarea {
-    border: 1px solid #313131;
+    border: 1px solid #02a775;
     font: inherit;
     border-radius: 2px;
   }
   
   .forms input:focus,
   .forms textarea:focus {
-    outline-color: #eeb17f;
+    outline-color: #68e4bf;
   }
   .forms button{
     width:75%;
     border-radius: 4px;
   }
   .forms button:hover{
-    background-color: #9e9999;
+    background-color: #acf0d0;
   }
   

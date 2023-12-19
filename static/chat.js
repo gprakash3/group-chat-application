@@ -91,17 +91,17 @@ async function appendmessage(message) {
     }
 
     if (part2!=undefined && part2.includes("PDF") && part2.includes("https")) {
-        appendmessage(part1);
+        appendmessage(`${part1} shared file:`);
         appendpdf(part2);
         return;
     }
     else if(part2!=undefined && part2.includes("VID") && part2.includes("https")){
-         appendmessage(part1);
+         appendmessage(`${part1} shared video:`);
         appendVid(part2);
         return;
     }
     else if(part2!=undefined && part2.includes("IMG") && part2.includes("https")){
-        appendmessage(part1);
+        appendmessage(`${part1} shared Image:`);
         appendImg(part2);
         return;
     }

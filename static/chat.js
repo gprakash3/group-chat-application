@@ -89,17 +89,18 @@ async function appendmessage(message) {
         part1 = message.substring(0, indexOfColon);
         part2 = message.substring(indexOfColon + 1);
     }
-    if (part2.includes("PDF") && part2.includes("https")) {
+
+    if (part2!=undefined && part2.includes("PDF") && part2.includes("https")) {
         appendmessage(part1);
         appendpdf(part2);
         return;
     }
-    else if(part2.includes("VID") && part2.includes("https")){
-        appendmessage(part1);
+    else if(part2!=undefined && part2.includes("VID") && part2.includes("https")){
+         appendmessage(part1);
         appendVid(part2);
         return;
     }
-    else if(part2.includes("IMG") && part2.includes("https")){
+    else if(part2!=undefined && part2.includes("IMG") && part2.includes("https")){
         appendmessage(part1);
         appendImg(part2);
         return;
@@ -116,15 +117,18 @@ async function appendImg(obj) {
     const img = document.createElement('img');
     img.className = "image";
     img.src = `${obj}`;
+    const downloadButton = document.createElement('a');
+    downloadButton.href = `${obj}`;
+    downloadButton.appendChild(document.createTextNode('Download Image'));
     div.appendChild(img);
+    div.appendChild(downloadButton);
     display.appendChild(div);
 }
 
 async function appendVid(obj) {
     const div = document.createElement('div');
     const video = document.createElement('video');
-    video.width = 500; 
-    video.height = 300; 
+    video.className= 'video';
     video.controls = true;
     var source = document.createElement('source');
     source.src = `${obj}`;
@@ -135,10 +139,12 @@ async function appendVid(obj) {
 }
 
 async function appendpdf(obj) {
+    let urlfilename= obj.split('PDF/');
+    let file_name = urlfilename[1].replace(/%20/g, ' ');
     const div = document.createElement('div');
     const text = document.createTextNode('Click here to download pdf:')
     div.appendChild(text);
-    div.innerHTML+=`<a  href=${obj}>pdf link</a>`;
+    div.innerHTML+=`<a  href=${obj}>${file_name}</a>`;
     display.appendChild(div);
 }
 

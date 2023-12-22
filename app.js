@@ -53,8 +53,6 @@ Message.belongsTo(Group);
 Group.belongsToMany(User, { through: UserGroup });
 User.belongsToMany(Group, { through: UserGroup });
 
-User.belongsToMany(Group, { through: AdminGroup });
-Group.belongsToMany(User, { through: AdminGroup });
 
 
 

@@ -8,11 +8,6 @@ const io = new Server(server);
 const {instrument} = require('@socket.io/admin-ui');
 
 
-io.on('connection', (socket) => {
-  console.log('a user connected');
-  console.log(socket.id);
-});
-
 module.exports = {
   getIo: (server) => {
     const io = new Server(server);
@@ -28,7 +23,7 @@ module.exports = {
       socket.on('send-message-particulargroup', (message,room) =>{
         console.log("message sending via particular group",message, room);
         socket.to(`${room}`).emit('receive-message-particulargroup', message);
-        // io.emit('message', message);
+        
       })
 
       socket.on('join-room', room =>{
@@ -52,6 +47,9 @@ module.exports = {
         socket.broadcast.emit('updategrouptileonremove', message);
       })
 
+      socket.on('admin made', (message,room) => {
+        socket.to(room).emit('user made admin',message );
+      })
     });
     instrument(io,{auth:false});
 

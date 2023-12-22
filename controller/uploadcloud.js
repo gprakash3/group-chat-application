@@ -46,14 +46,9 @@ function uploadToS3(data, filename) {
           // Create a unique key for the file in your S3 bucket
           filename = `VID/${new Date()}-${file.originalname}`;
           }
-          // else if(file.mimetype.startsWith("application")){
-          //   // Create a unique key for the file in your S3 bucket
-          //   filename = `PDF/${file.originalname}`;
-          //   }
           else{
             filename= `PDF/${file.originalname}`;
           }
-        // res.status(201).json({filename:filename, data: data, file:file});
         const fileUrl = await uploadToS3(data, filename);
             res.status(200).json({ fileUrl, success: true })
         
